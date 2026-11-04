@@ -2,63 +2,72 @@
 {
     private static void Main(string[] args)
     {
-        SMS sms = new SMS();
-        Email email = new Email();
-        Push push = new Push();
-        OrderService orderService = new OrderService("Customer1");
+        var service1 = new OrderService(new SMS("123-456-7890"));
+        service1.Notifies();
+        var service2 = new OrderService(new Email("customer@example.com"));
+        service2.Notifies();
+        var service3 = new OrderService(new Push("user123"));
+        service3.Notifies();
 
     }
 }
 
 //interface
-interface Inotification
+interface INotification
 {
     public string recipient { get; set; }
-    public string message { get; set; }
+    public void Send();
 }
 
-class SMS : Inotification
+class SMS : INotification
 {
     public string recipient { get; set; }
-    public string message { get; set; }
-
-    public void PrintMessage()
+    public SMS(string recipient)
     {
-        Console.WriteLine("[SMS] Sending to 0300-xxxxxxxx: ....");
+        this.recipient = recipient;
+    }
+    public void Send()
+    {
+        Console.WriteLine($"[SMS] Sending to {recipient}: ....");
     }
 }
 
-class Email : Inotification
+class Email : INotification
 {
     public string recipient { get; set; }
-    public string message { get; set; }
-
-    public void PrintMessage()
+    public Email(string recipient)
     {
-        Console.WriteLine("[Email] Sending to 0300-xxxxxxxx: ....");
+        this.recipient = recipient;
+    }
+    public void Send()
+    {
+        Console.WriteLine($"[Email] Sending to {recipient}: ....");
     }
 }
 
-class Push : Inotification
+class Push : INotification
 {
     public string recipient { get; set; }
-    public string message { get; set; }
-    public void PrintMessage()
+    public Push(string recipient)
     {
-        Console.WriteLine("[Push] Sending to 0300-xxxxxxxx: ....");
+        this.recipient = recipient;
+    }
+    public void Send()
+    {
+        Console.WriteLine($"[Push] Sending to {recipient}: ....");
     }
 }
 
 class OrderService
 {
-    private string sender;
-    public OrderService (string sender)
+    private INotification notification;
+    public OrderService (INotification notification)
     {
-        this.sender = sender;
+        this.notification = notification;
     }
 
     public void Notifies()
     {
-        Console.WriteLine("Your order #123 is on the way!");
+        notification.Send();
     }
 }
