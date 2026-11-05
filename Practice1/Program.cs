@@ -16,7 +16,7 @@
             new Email("customer@example.com"),
             new Push("user123")
         };
-        var service = new OrderService(notifications);
+        var service = new OrderService(new MultiChannel(notifications));
         service.Notifies();
     }
 }
@@ -24,8 +24,7 @@
 //interface
 interface INotification
 {
-    public string Recipient { get; set; }
-    public void Send();
+    public void Send(string message);
 }
 
 class SMS : INotification
@@ -35,9 +34,9 @@ class SMS : INotification
     {
         this.Recipient = Recipient;
     }
-    public void Send()
+    public void Send(string message)
     {
-        Console.WriteLine($"[SMS] Sending to {Recipient}: ....");
+        Console.WriteLine($"[SMS] Sending to {Recipient}: {message}");
     }
 }
 
@@ -48,9 +47,9 @@ class Email : INotification
     {
         this.Recipient = Recipient;
     }
-    public void Send()
+    public void Send(string message)
     {
-        Console.WriteLine($"[Email] Sending to {Recipient}: ....");
+        Console.WriteLine($"[Email] Sending to {Recipient}: {message}");
     }
 }
 
@@ -61,43 +60,38 @@ class Push : INotification
     {
         this.Recipient = Recipient;
     }
-    public void Send()
+    public void Send(string message)
     {
-        Console.WriteLine($"[Push] Sending to {Recipient}: ....");
+        Console.WriteLine($"[Push] Sending to {Recipient}: {message}");
     }
 }
 
 class OrderService
 {
-    private List<INotification> notifications = new List<INotification>();
-    public OrderService (List<INotification> notifications)
+    private INotification notification;
+    public OrderService (INotification notifications)
     {
-        this.notifications = notifications;
+        this.notification = notifications;
     }
 
     public void Notifies()
     {
-        Console.WriteLine("Your order #123 is on the way.");
-        foreach (var notification in notifications)
-        {
-            notification.Send();
-        }
+        notification.Send("Your order #123 is on the way.");
     }
 }
 
 class MultiChannel : INotification
 {
-    public string Recipient { get; set; }
     private List<INotification> notifications = new List<INotification>();
     public MultiChannel(List<INotification> notifications)
     {
         this.notifications = notifications;
     }
-    public void Send()
+    public void Send(string message)
     {
         foreach (var notification in notifications)
         {
-            notification.Send();
+            notification.Send(message);
         }
     }
 }
